@@ -1,0 +1,14 @@
+fufan_deepseek_agent/
+.env
+.venv
+__pycache__/
+.ruff_cache/
+.mypy_cache/
+.DS_Store
+.cursor/
+var/logs/
+var/uploads/
+var/data/
+*.pyc
+*.egg-info/
+dev_docs/
