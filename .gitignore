@@ -48,7 +48,6 @@ docker/.env.docker
 
 # Data and models
 data/
-models/
 uploads/
 var/uploads/
 var/data/

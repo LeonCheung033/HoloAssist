@@ -108,4 +108,5 @@ class Settings(BaseSettings):
 
 
 # 创建全局settings实例
-settings = Settings()
+# Settings会从环境变量读取配置，mypy无法静态分析
+settings = Settings()  # type: ignore[call-arg]

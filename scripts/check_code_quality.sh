@@ -7,20 +7,20 @@ echo "Running code quality checks..."
 
 # 1. 代码格式化检查
 echo "Checking code formatting..."
-ruff format --check src/ tests/
+uv run ruff format --check src/ tests/
 
 # 2. 代码lint检查
 echo "Running linter..."
-ruff check src/ tests/
+uv run ruff check src/ tests/
 
 # 3. 类型检查
 echo "Running type checker..."
-mypy src/
+uv run mypy src/
 
 # 4. 运行测试并检查覆盖率
 echo "Running tests..."
 coverage_threshold=80
-coverage_output=$(pytest tests/ -v --cov=src/holoassist --cov-report=term-missing --cov-report=term 2>&1)
+coverage_output=$(uv run pytest tests/ -v --cov=src/holoassist --cov-report=term-missing --cov-report=term 2>&1)
 echo "$coverage_output"
 
 # 提取覆盖率百分比
