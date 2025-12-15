@@ -24,11 +24,23 @@ coverage_output=$(pytest tests/ -v --cov=src/holoassist --cov-report=term-missin
 echo "$coverage_output"
 
 # 提取覆盖率百分比
-coverage=$(echo "$coverage_output" | grep TOTAL | awk '{print $NF}' | sed 's/%//' || echo "0")
-if [ -z "$coverage" ] || [ "$coverage" = "0" ]; then
-    echo "Warning: No coverage data found or coverage is 0%"
-    echo "This is expected if no test files exist yet"
-    exit 0
+coverage=$(echo "$coverage_output" | grep TOTAL | awk '{print $NF}' | sed 's/%//' || echo "")
+
+# 检查是否有测试文件
+test_files=$(find tests/ -name "test_*.py" -type f 2>/dev/null | wc -l | tr -d ' ')
+
+# 处理覆盖率缺失或为0%的情况
+if [ -z "$coverage" ] || [ "$coverage" = "" ] || [ "$coverage" = "0" ]; then
+    if [ "$test_files" -eq 0 ]; then
+        echo "Warning: No coverage data found or coverage is 0%, and no test files exist"
+        echo "This is expected during initial project setup"
+        echo "Coverage check skipped - please add tests in future stages"
+        exit 0
+    else
+        echo "Error: Test files exist but coverage is 0% or missing"
+        echo "This indicates tests are not being executed or are not covering any code"
+        exit 1
+    fi
 fi
 
 # 使用Python进行可靠的浮点数比较（不依赖bc）
