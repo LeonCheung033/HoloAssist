@@ -1,14 +1,80 @@
-fufan_deepseek_agent/
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
 .env
 .venv
-__pycache__/
-.ruff_cache/
-.mypy_cache/
+env/
+venv/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
 .DS_Store
 .cursor/
+
+# Logs
+*.log
+logs/
+log/
 var/logs/
+
+# Local development
+.env.local
+.env.*.local
+docker/.env.docker
+
+# Data and models
+data/
+models/
+uploads/
 var/uploads/
 var/data/
-*.pyc
-*.egg-info/
+*.db
+*.sqlite
+*.sqlite3
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.tox/
+
+# UV
+.uv/
+
+# Static files (if needed)
+static/dist/
+
+# Ruff
+.ruff_cache/
+
+# MyPy
+.mypy_cache/
+
+# Other
+fufan_deepseek_agent/
 dev_docs/
