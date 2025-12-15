@@ -1,15 +1,47 @@
 [project]
 name = "holoassist"
 version = "0.1.0"
-description = "Add your description here"
+description = "基于大语言模型构建的智能客服系统"
 readme = "README.md"
-requires-python = ">=3.10"
-dependencies = [
-    "fastapi>=0.124.0",
-    "pydantic>=2.12.5",
-    "pydantic-settings>=2.12.0",
-    "uvicorn>=0.38.0",
+requires-python = ">=3.12"
+dependencies = []  # 运行时依赖将在各阶段按需添加
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "pre-commit>=3.0.0",
 ]
-[tool.setuptools]
-package-dir = {"" = "src"}
-packages = ["holoassist"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers --cov=src/holoassist --cov-report=html --cov-report=term-missing --cov-fail-under=80"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow running tests",
+]
