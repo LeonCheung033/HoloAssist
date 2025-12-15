@@ -36,6 +36,10 @@ async def init_db():
     except Exception as e:
         logger.error(f"Database initialization failed: {str(e)}")
         raise
+    finally:
+        # 显式关闭引擎，释放所有连接资源
+        # 这可以避免在事件循环关闭后尝试清理连接时出现 RuntimeError
+        await engine.dispose()
 
 
 def main():
