@@ -31,7 +31,8 @@ if [ -z "$coverage" ] || [ "$coverage" = "0" ]; then
     exit 0
 fi
 
-if (( $(echo "$coverage < $coverage_threshold" | bc -l 2>/dev/null || echo "0") )); then
+# 使用Python进行可靠的浮点数比较（不依赖bc）
+if ! python3 -c "import sys; sys.exit(0 if float('$coverage') >= float('$coverage_threshold') else 1)" 2>/dev/null; then
     echo "Coverage $coverage% is below threshold $coverage_threshold%"
     exit 1
 fi
