@@ -44,6 +44,7 @@ var/logs/
 # Local development
 .env.local
 .env.*.local
+docker/.env.docker
 
 # Data and models
 data/
