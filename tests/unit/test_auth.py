@@ -1,7 +1,9 @@
 """
 认证API单元测试
 """
+
 import pytest
+import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from holoassist.app.core.database import AsyncSessionLocal
@@ -10,7 +12,7 @@ from holoassist.app.schemas.user import UserCreate
 from holoassist.app.services.user_service import UserService
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def db_session():
     """提供数据库会话fixture"""
     async with AsyncSessionLocal() as session:
@@ -18,15 +20,11 @@ async def db_session():
         await session.rollback()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def test_user(db_session: AsyncSession):
     """创建测试用户fixture"""
     user_service = UserService(db_session)
-    user_data = UserCreate(
-        username="testuser",
-        email="test@example.com",
-        password="hashed_password_123"
-    )
+    user_data = UserCreate(username="testuser", email="test@example.com", password="hashed_password_123")
     user = await user_service.create_user(user_data)
     return user
 
@@ -38,11 +36,7 @@ class TestUserService:
     async def test_create_user_success(self, db_session: AsyncSession):
         """测试成功创建用户"""
         user_service = UserService(db_session)
-        user_data = UserCreate(
-            username="newuser",
-            email="newuser@example.com",
-            password="password123"
-        )
+        user_data = UserCreate(username="newuser", email="newuser@example.com", password="password123")
         user = await user_service.create_user(user_data)
         assert user is not None
         assert user.username == "newuser"
@@ -57,7 +51,7 @@ class TestUserService:
         user_data = UserCreate(
             username="differentuser",
             email="test@example.com",  # 重复邮箱
-            password="password123"
+            password="password123",
         )
         with pytest.raises(ValueError, match="该邮箱已经被注册"):
             await user_service.create_user(user_data)
@@ -69,7 +63,7 @@ class TestUserService:
         user_data = UserCreate(
             username="testuser",  # 重复用户名
             email="different@example.com",
-            password="password123"
+            password="password123",
         )
         with pytest.raises(ValueError, match="用户名已被占用"):
             await user_service.create_user(user_data)

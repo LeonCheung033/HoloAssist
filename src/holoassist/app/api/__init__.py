@@ -2,6 +2,7 @@
 
 统一管理所有API路由。
 """
+
 from fastapi import APIRouter
 
 from holoassist.app.api.auth import router as auth_router

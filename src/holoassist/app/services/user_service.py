@@ -39,12 +39,7 @@ class UserService:
             ValueError: 如果邮箱或用户名已存在
         """
         # 同时检查用户名和邮箱是否已存在
-        query = select(User).where(
-            or_(
-                User.email == user_data.email,
-                User.username == user_data.username
-            )
-        )
+        query = select(User).where(or_(User.email == user_data.email, User.username == user_data.username))
 
         result = await self.db.execute(query)
         existing_user = result.scalar_one_or_none()
@@ -57,9 +52,7 @@ class UserService:
 
         # 创建新用户
         db_user = User(
-            username=user_data.username,
-            email=user_data.email,
-            password_hash=get_password_hash(user_data.password)
+            username=user_data.username, email=user_data.email, password_hash=get_password_hash(user_data.password)
         )
         self.db.add(db_user)
         await self.db.commit()
