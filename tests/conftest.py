@@ -19,9 +19,12 @@ os.environ.setdefault("OLLAMA_AGENT_MODEL", "test-agent-model")
 os.environ.setdefault("SERPAPI_KEY", "test-serpapi-key")
 os.environ.setdefault("DB_HOST", "localhost")
 os.environ.setdefault("DB_PORT", "3306")
-os.environ.setdefault("DB_USER", "test_user")
-os.environ.setdefault("DB_PASSWORD", "test_password")
+os.environ.setdefault("DB_USER", "root")
+os.environ.setdefault("DB_PASSWORD", "zl020722")
 os.environ.setdefault("DB_NAME", "test_db")
 os.environ.setdefault("REDIS_HOST", "localhost")
 os.environ.setdefault("REDIS_PORT", "6379")
 os.environ.setdefault("SECRET_KEY", "test-secret-key-for-testing-only")
+
+# 导入模型以确保表定义被注册
+from holoassist.app.models import Conversation, Message, User  # noqa: F401, E402

@@ -5,8 +5,9 @@ from pydantic_settings import BaseSettings
 
 # 获取项目根目录
 # config.py位于: src/holoassist/app/core/config.py
-# 需要向上3级到达项目根目录
-ROOT_DIR = Path(__file__).parent.parent.parent.parent
+# 需要向上5级到达项目根目录
+# __file__ -> core -> app -> holoassist -> src -> 项目根目录
+ROOT_DIR = Path(__file__).parent.parent.parent.parent.parent
 ENV_FILE = ROOT_DIR / ".env"
 
 
