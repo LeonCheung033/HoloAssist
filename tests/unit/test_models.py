@@ -79,3 +79,72 @@ class TestModelRelationships:
         assert User is not None
         assert Conversation is not None
         assert Message is not None
+
+
+class TestUserSchemas:
+    """用户Schema测试"""
+
+    def test_user_base_schema(self):
+        """测试UserBase Schema"""
+        from holoassist.app.schemas.user import UserBase
+
+        user_data = {"username": "testuser", "email": "test@example.com"}
+        user = UserBase(**user_data)
+        assert user.username == "testuser"
+        assert user.email == "test@example.com"
+
+    def test_user_create_schema(self):
+        """测试UserCreate Schema"""
+        from holoassist.app.schemas.user import UserCreate
+
+        user_data = {"username": "testuser", "email": "test@example.com", "password": "password123"}
+        user = UserCreate(**user_data)
+        assert user.username == "testuser"
+        assert user.email == "test@example.com"
+        assert user.password == "password123"
+
+    def test_user_login_schema(self):
+        """测试UserLogin Schema"""
+        from holoassist.app.schemas.user import UserLogin
+
+        login_data = {"email": "test@example.com", "password": "password123"}
+        login = UserLogin(**login_data)
+        assert login.email == "test@example.com"
+        assert login.password == "password123"
+
+    def test_user_response_schema(self):
+        """测试UserResponse Schema"""
+        from datetime import datetime
+
+        from holoassist.app.schemas.user import UserResponse
+
+        user_data = {
+            "id": 1,
+            "username": "testuser",
+            "email": "test@example.com",
+            "status": "active",
+            "created_at": datetime.now(),
+            "last_login": None,
+        }
+        user = UserResponse(**user_data)
+        assert user.id == 1
+        assert user.username == "testuser"
+        assert user.email == "test@example.com"
+        assert user.status == "active"
+        assert user.last_login is None
+
+    def test_token_schema(self):
+        """测试Token Schema"""
+        from holoassist.app.schemas.user import Token
+
+        token_data = {"access_token": "test-token"}
+        token = Token(**token_data)
+        assert token.access_token == "test-token"
+        assert token.token_type == "bearer"
+
+    def test_token_schema_default_type(self):
+        """测试Token Schema默认token_type"""
+        from holoassist.app.schemas.user import Token
+
+        token = Token(access_token="test-token")
+        assert token.token_type == "bearer"
