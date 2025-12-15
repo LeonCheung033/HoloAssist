@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from holoassist.app.core.config import settings
 from holoassist.app.core.database import get_db
+from holoassist.app.models.user import User
+from holoassist.app.services.user_service import UserService
 
 # OAuth2 密码承载方案，用于从请求头中提取 Bearer token
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/token")
@@ -39,23 +41,20 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)):
+async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession = Depends(get_db)) -> User:
     """获取当前认证用户
 
     从JWT token中提取用户信息并验证用户是否存在。
-    此函数依赖UserService，该服务在阶段三实现。
 
     Args:
         token: JWT token（通过OAuth2PasswordBearer自动提取）
         db: 数据库会话（通过依赖注入）
 
     Returns:
-        用户对象
+        User: 用户对象
 
     Raises:
         HTTPException: 如果token无效或用户不存在，返回401未授权错误
-
-    TODO: 在阶段三实现UserService后，取消注释UserService相关代码
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -73,14 +72,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     except JWTError:
         raise credentials_exception
 
-    # TODO: 在阶段三实现UserService后，取消以下注释并删除占位代码
-    # from holoassist.app.services.user_service import UserService
-    # user_service = UserService(db)
-    # user = await user_service.get_user_by_email(email)
-    # if user is None:
-    #     raise credentials_exception
-    # return user
+    # 使用UserService查询用户
+    user_service = UserService(db)
+    user = await user_service.get_user_by_email(email)
+    if user is None:
+        raise credentials_exception
 
-    # 临时占位实现：返回包含email的字典
-    # 在实际使用前需要实现UserService
-    return {"email": email}
+    return user
