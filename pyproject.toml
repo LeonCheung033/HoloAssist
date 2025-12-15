@@ -5,9 +5,11 @@ description = "基于大语言模型构建的智能客服系统"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "aiomysql>=0.3.2",
     "loguru>=0.7.3",
     "pydantic-settings>=2.12.0",
     "python-dotenv>=1.2.1",
+    "sqlalchemy>=2.0.45",
 ]  # 运行时依赖将在各阶段按需添加
 
 [project.optional-dependencies]
