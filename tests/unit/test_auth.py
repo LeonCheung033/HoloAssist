@@ -6,10 +6,21 @@ import pytest
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from holoassist.app.core.database import AsyncSessionLocal
+from holoassist.app.core.database import AsyncSessionLocal, Base, engine
 from holoassist.app.models.user import User
 from holoassist.app.schemas.user import UserCreate
 from holoassist.app.services.user_service import UserService
+
+
+@pytest_asyncio.fixture(scope="module", autouse=True)
+async def setup_test_db():
+    """在测试模块开始时创建表"""
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    # 测试模块结束后清理表
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
 
 
 @pytest_asyncio.fixture
