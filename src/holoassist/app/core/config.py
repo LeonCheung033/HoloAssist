@@ -16,6 +16,7 @@ class ServiceType(str, Enum):
 
     DEEPSEEK = "deepseek"
     OLLAMA = "ollama"
+    SILICONFLOW = "siliconflow"
 
 
 class Settings(BaseSettings):
@@ -25,11 +26,19 @@ class Settings(BaseSettings):
     DEEPSEEK_API_KEY: str
     DEEPSEEK_BASE_URL: str
     DEEPSEEK_MODEL: str
+    DEEPSEEK_REASONER_MODEL: str = "deepseek-reasoner"  # 深度思考模型
 
     # Vision Model settings (独立配置)
     VISION_API_KEY: str
     VISION_BASE_URL: str
     VISION_MODEL: str
+
+    # SiliconFlow settings (用于Embedding和视觉模型)
+    SILICONFLOW_API_KEY: str = ""
+    SILICONFLOW_BASE_URL: str = "https://api.siliconflow.cn/v1"
+    SILICONFLOW_EMBEDDING_MODEL: str = "BAAI/bge-large-zh-v1.5"  # 默认embedding模型
+    SILICONFLOW_VISION_MODEL: str = "Qwen/Qwen2.5-VL-32B-Instruct"  # 默认视觉模型
+    SILICONFLOW_CHAT_MODEL: str = "deepseek-ai/DeepSeek-V3"
 
     # Ollama settings
     OLLAMA_BASE_URL: str
