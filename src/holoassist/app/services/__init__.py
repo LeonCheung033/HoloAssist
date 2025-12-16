@@ -4,6 +4,8 @@
 """
 
 from holoassist.app.services.deepseek_service import DeepSeekService
+from holoassist.app.services.embedding_service import EmbeddingService
+from holoassist.app.services.indexing_service import IndexingService
 from holoassist.app.services.llm_factory import LLMFactory, get_factory
 from holoassist.app.services.ollama_service import OllamaService
 from holoassist.app.services.redis_semantic_cache import RedisSemanticCache
@@ -11,6 +13,8 @@ from holoassist.app.services.siliconflow_service import SiliconFlowService
 
 __all__ = [
     "DeepSeekService",
+    "EmbeddingService",
+    "IndexingService",
     "OllamaService",
     "SiliconFlowService",
     "LLMFactory",
