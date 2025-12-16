@@ -23,6 +23,7 @@ dependencies = [
     "redis>=5.0.0",
     "sentence-transformers>=5.2.0",
     "sqlalchemy>=2.0.45",
+    "tavily-python>=0.7.15",
     "tenacity>=8.0.0",
 ]  # 运行时依赖将在各阶段按需添加
 
