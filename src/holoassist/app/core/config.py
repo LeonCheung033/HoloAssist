@@ -83,8 +83,8 @@ class Settings(BaseSettings):
     REDIS_CACHE_THRESHOLD: float = 0.8
 
     # Embedding settings
-    EMBEDDING_TYPE: str = "ollama"  # ollama 或 sentence_transformer
-    EMBEDDING_MODEL: str = "bge-m3"  # ollama embedding模型
+    EMBEDDING_TYPE: str = "ollama"  # ollama、sentence_transformer 或 siliconflow
+    EMBEDDING_MODEL: str = "bge-m3"  # embedding模型名称
     EMBEDDING_THRESHOLD: float = 0.90  # 语义相似度阈值
 
     # GraphRAG settings
