@@ -3,7 +3,7 @@
 提供会话和消息的完整CRUD操作。
 """
 
-from datetime import datetime
+from datetime import UTC, datetime
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
