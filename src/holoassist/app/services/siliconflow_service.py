@@ -3,7 +3,8 @@
 提供与SiliconFlow API的交互功能，支持对话、嵌入向量生成和视觉模型。
 SiliconFlow兼容OpenAI API格式。
 """
-from typing import AsyncGenerator, Dict, List, Optional
+
+from collections.abc import AsyncGenerator
 
 from openai import AsyncOpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -23,11 +24,11 @@ class SiliconFlowService:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        base_url: Optional[str] = None,
-        embedding_model: Optional[str] = None,
-        vision_model: Optional[str] = None,
-        chat_model: Optional[str] = None,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        embedding_model: str | None = None,
+        vision_model: str | None = None,
+        chat_model: str | None = None,
         timeout: float = 60.0,
     ):
         """初始化SiliconFlow服务
@@ -59,7 +60,7 @@ class SiliconFlowService:
         # OpenAI客户端会自动管理连接，这里可以留空或添加清理逻辑
         pass
 
-    def _format_messages(self, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    def _format_messages(self, messages: list[dict[str, str]]) -> list[dict[str, str]]:
         """格式化消息列表为OpenAI API格式
 
         Args:
@@ -78,12 +79,12 @@ class SiliconFlowService:
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     async def chat(
         self,
-        messages: List[Dict[str, str]],
-        model: Optional[str] = None,
+        messages: list[dict[str, str]],
+        model: str | None = None,
         stream: bool = True,
-        max_tokens: Optional[int] = None,
-        temperature: Optional[float] = None,
-        top_p: Optional[float] = None,
+        max_tokens: int | None = None,
+        temperature: float | None = None,
+        top_p: float | None = None,
         **kwargs,
     ) -> AsyncGenerator[str, None]:
         """与SiliconFlow模型进行对话（流式响应）
@@ -149,9 +150,7 @@ class SiliconFlowService:
             logger.error(f"Error in SiliconFlow chat: {str(e)}")
             raise
 
-    async def chat_complete(
-        self, messages: List[Dict[str, str]], model: Optional[str] = None
-    ) -> str:
+    async def chat_complete(self, messages: list[dict[str, str]], model: str | None = None) -> str:
         """与SiliconFlow模型进行对话（非流式，返回完整响应）
 
         Args:
@@ -170,10 +169,10 @@ class SiliconFlowService:
     async def generate_embedding(
         self,
         text: str,
-        model: Optional[str] = None,
+        model: str | None = None,
         encoding_format: str = "float",
-        dimensions: Optional[int] = None,
-    ) -> List[float]:
+        dimensions: int | None = None,
+    ) -> list[float]:
         """生成文本的嵌入向量
 
         Args:
@@ -196,7 +195,7 @@ class SiliconFlowService:
 
         try:
             # SiliconFlow兼容OpenAI的embeddings API
-            api_params = {
+            api_params: dict[str, str | int] = {
                 "model": model,
                 "input": text,
                 "encoding_format": encoding_format,
@@ -204,12 +203,15 @@ class SiliconFlowService:
 
             # 添加可选的dimensions参数
             if dimensions is not None:
-                api_params["dimensions"] = dimensions
+                api_params["dimensions"] = int(dimensions)
 
             response = await self.client.embeddings.create(**api_params)
 
             if response.data and len(response.data) > 0:
-                return response.data[0].embedding
+                embedding = response.data[0].embedding
+                if isinstance(embedding, list):
+                    return [float(x) for x in embedding]
+                return list(embedding)
             else:
                 raise ValueError("Empty embedding response")
 
@@ -220,13 +222,13 @@ class SiliconFlowService:
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     async def vision(
         self,
-        messages: List[Dict[str, str]],
-        image_url: Optional[str] = None,
-        image_base64: Optional[str] = None,
-        model: Optional[str] = None,
+        messages: list[dict[str, str]],
+        image_url: str | None = None,
+        image_base64: str | None = None,
+        model: str | None = None,
         stream: bool = True,
-        max_tokens: Optional[int] = None,
-        temperature: Optional[float] = None,
+        max_tokens: int | None = None,
+        temperature: float | None = None,
         **kwargs,
     ) -> AsyncGenerator[str, None]:
         """调用视觉模型进行图像理解（流式响应）
@@ -263,20 +265,16 @@ class SiliconFlowService:
             content = msg.get("content", "")
 
             # 构建消息内容，包含图像
-            message_content = [{"type": "text", "text": content}]
+            message_content: list[dict[str, str | dict[str, str]]] = [{"type": "text", "text": content}]
 
             if image_url:
                 message_content.append({"type": "image_url", "image_url": {"url": image_url}})
             elif image_base64:
                 # base64格式：data:image/jpeg;base64,{base64_string}
                 image_data = (
-                    image_base64
-                    if image_base64.startswith("data:")
-                    else f"data:image/jpeg;base64,{image_base64}"
+                    image_base64 if image_base64.startswith("data:") else f"data:image/jpeg;base64,{image_base64}"
                 )
-                message_content.append(
-                    {"type": "image_url", "image_url": {"url": image_data}}
-                )
+                message_content.append({"type": "image_url", "image_url": {"url": image_data}})
 
             formatted_messages.append({"role": role, "content": message_content})
 
@@ -319,10 +317,10 @@ class SiliconFlowService:
 
     async def vision_complete(
         self,
-        messages: List[Dict[str, str]],
-        image_url: Optional[str] = None,
-        image_base64: Optional[str] = None,
-        model: Optional[str] = None,
+        messages: list[dict[str, str]],
+        image_url: str | None = None,
+        image_base64: str | None = None,
+        model: str | None = None,
     ) -> str:
         """调用视觉模型进行图像理解（非流式，返回完整响应）
 

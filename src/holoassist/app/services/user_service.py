@@ -1,7 +1,6 @@
 from datetime import datetime
-from typing import Optional
 
-from sqlalchemy import select, or_
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from holoassist.app.core.hashing import get_password_hash, verify_password
@@ -59,7 +58,7 @@ class UserService:
         await self.db.refresh(db_user)
         return db_user
 
-    async def authenticate_user(self, email: str, password: str) -> Optional[User]:
+    async def authenticate_user(self, email: str, password: str) -> User | None:
         """验证用户
 
         Args:
@@ -77,17 +76,17 @@ class UserService:
             logger.warning(f"User not found: {email}")
             return None
 
-        if not verify_password(password, user.password_hash):
+        if not verify_password(password, str(user.password_hash)):
             logger.warning(f"Invalid password for user: {email}")
             return None
 
         # 更新最后登录时间
-        user.last_login = datetime.utcnow()
+        user.last_login = datetime.utcnow()  # type: ignore[assignment]
         await self.db.commit()
 
         return user
 
-    async def get_user_by_id(self, user_id: int) -> Optional[User]:
+    async def get_user_by_id(self, user_id: int) -> User | None:
         """根据ID查询用户
 
         Args:
@@ -100,7 +99,7 @@ class UserService:
         result = await self.db.execute(query)
         return result.scalar_one_or_none()
 
-    async def get_user_by_email(self, email: str) -> Optional[User]:
+    async def get_user_by_email(self, email: str) -> User | None:
         """根据邮箱查询用户
 
         Args:
