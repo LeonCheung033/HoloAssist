@@ -154,7 +154,7 @@ class ConversationService:
             updated = True
 
         if updated:
-            conversation.updated_at = datetime.utcnow()  # type: ignore[assignment]
+            conversation.updated_at = datetime.now(UTC)  # type: ignore[assignment]
             await self.db.commit()
             await self.db.refresh(conversation)
             logger.info(f"Updated conversation {conversation_id} for user {user_id}")
@@ -227,7 +227,7 @@ class ConversationService:
         self.db.add(message)
 
         # 更新会话的更新时间
-        conversation.updated_at = datetime.utcnow()  # type: ignore[assignment]
+        conversation.updated_at = datetime.now(UTC)  # type: ignore[assignment]
 
         await self.db.commit()
         await self.db.refresh(message)
