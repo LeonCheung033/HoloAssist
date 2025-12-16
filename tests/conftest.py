@@ -3,10 +3,19 @@ Pytest配置文件
 """
 
 import os
+from pathlib import Path
+
+# 加载 .env 文件（如果存在），确保集成测试可以使用真实的API密钥
+# 注意：必须在设置默认值之前加载，这样 .env 文件中的值会被优先使用
+env_file = Path(__file__).parent.parent / ".env"
+if env_file.exists():
+    from dotenv import load_dotenv
+    load_dotenv(env_file, override=False)  # override=False 确保已存在的环境变量不会被覆盖
 
 # 设置测试环境变量，避免导入config模块时验证失败
+# 注意：只有在环境变量不存在时才设置默认值
 os.environ.setdefault("DEEPSEEK_API_KEY", "test-api-key")
-os.environ.setdefault("DEEPSEEK_BASE_URL", "https://api.test.com/v1")
+os.environ.setdefault("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
 os.environ.setdefault("DEEPSEEK_MODEL", "test-model")
 os.environ.setdefault("VISION_API_KEY", "test-vision-key")
 os.environ.setdefault("VISION_BASE_URL", "https://api.test.com/v1")
