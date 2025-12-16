@@ -37,4 +37,38 @@ os.environ.setdefault("REDIS_PORT", "6379")
 os.environ.setdefault("SECRET_KEY", "test-secret-key-for-testing-only")
 
 # 导入模型以确保表定义被注册
+import pytest_asyncio  # noqa: E402
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine  # noqa: E402
+from sqlalchemy.orm import sessionmaker  # noqa: E402
+
+from holoassist.app.core.database import Base  # noqa: E402
 from holoassist.app.models import Conversation, Message, User  # noqa: F401, E402
+
+
+@pytest_asyncio.fixture
+async def db_session():
+    """创建测试数据库会话"""
+    # 使用测试数据库
+    test_db_url = (
+        f"mysql+aiomysql://{os.environ.get('DB_USER', 'root')}:"
+        f"{os.environ.get('DB_PASSWORD', 'zl020722')}@"
+        f"{os.environ.get('DB_HOST', 'localhost')}:"
+        f"{os.environ.get('DB_PORT', '3306')}/"
+        f"{os.environ.get('DB_NAME', 'test_db')}"
+    )
+
+    engine = create_async_engine(test_db_url, echo=False)
+    async_session = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
+
+    # 创建表
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
+    async with async_session() as session:
+        yield session
+
+    # 清理：删除表
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+
+    await engine.dispose()

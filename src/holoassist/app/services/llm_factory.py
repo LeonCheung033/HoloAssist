@@ -3,6 +3,8 @@
 使用工厂模式创建和管理LLM服务实例。
 """
 
+from typing import cast
+
 from holoassist.app.core.config import ServiceType, settings
 from holoassist.app.core.logger import get_logger
 from holoassist.app.services.deepseek_service import DeepSeekService
@@ -98,11 +100,7 @@ class LLMFactory:
             else:
                 raise ValueError(f"Unsupported chat service type: {settings.CHAT_SERVICE}")
             logger.info(f"Created chat service: {settings.CHAT_SERVICE}")
-        # mypy需要类型断言
         assert self._chat_service is not None
-        # 类型转换以帮助mypy理解
-        from typing import cast
-
         return cast(DeepSeekService | OllamaService | SiliconFlowService, self._chat_service)
 
     def create_reason_service(self) -> DeepSeekService | OllamaService | SiliconFlowService:
@@ -131,11 +129,7 @@ class LLMFactory:
             else:
                 raise ValueError(f"Unsupported reason service type: {settings.REASON_SERVICE}")
             logger.info(f"Created reason service: {settings.REASON_SERVICE}")
-        # mypy需要类型断言
         assert self._reason_service is not None
-        # 类型转换以帮助mypy理解
-        from typing import cast
-
         return cast(DeepSeekService | OllamaService | SiliconFlowService, self._reason_service)
 
     def create_agent_service(self) -> DeepSeekService | OllamaService | SiliconFlowService:
@@ -159,11 +153,7 @@ class LLMFactory:
             else:
                 raise ValueError(f"Unsupported agent service type: {settings.AGENT_SERVICE}")
             logger.info(f"Created agent service: {settings.AGENT_SERVICE}")
-        # mypy需要类型断言
         assert self._agent_service is not None
-        # 类型转换以帮助mypy理解
-        from typing import cast
-
         return cast(DeepSeekService | OllamaService | SiliconFlowService, self._agent_service)
 
     def get_ollama_service(self) -> OllamaService:

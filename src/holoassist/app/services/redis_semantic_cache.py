@@ -225,6 +225,7 @@ class RedisSemanticCache:
                 result = json.loads(embedding_str)
                 if isinstance(result, list):
                     return [float(x) for x in result]
+                return None
             return None
         except Exception as e:
             logger.warning(f"Error getting cached embedding for key {cache_key}: {str(e)}")
