@@ -1,6 +1,7 @@
 from enum import Enum
 from pathlib import Path
 
+from pydantic import Field
 from pydantic_settings import BaseSettings
 
 # 获取项目根目录
@@ -53,7 +54,8 @@ class Settings(BaseSettings):
     AGENT_SERVICE: ServiceType = ServiceType.DEEPSEEK
 
     # Search settings
-    SERPAPI_KEY: str
+    TAVILY_API_KEY: str = Field(default="", alias="TAVILY_KEY")  # Tavily API密钥（优先使用，支持TAVILY_KEY别名）
+    SERPAPI_KEY: str = ""  # SerpAPI密钥（向后兼容）
     SEARCH_RESULT_COUNT: int = 3
 
     # Database settings
