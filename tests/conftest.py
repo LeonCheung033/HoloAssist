@@ -10,6 +10,7 @@ from pathlib import Path
 env_file = Path(__file__).parent.parent / ".env"
 if env_file.exists():
     from dotenv import load_dotenv
+
     load_dotenv(env_file, override=False)  # override=False 确保已存在的环境变量不会被覆盖
 
 # 设置测试环境变量，避免导入config模块时验证失败

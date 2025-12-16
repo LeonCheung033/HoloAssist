@@ -2,8 +2,9 @@
 
 提供与Ollama本地模型的交互功能，支持对话和嵌入向量生成。
 """
+
 import json
-from typing import AsyncGenerator, Dict, List, Optional
+from collections.abc import AsyncGenerator
 
 import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -22,11 +23,11 @@ class OllamaService:
 
     def __init__(
         self,
-        base_url: Optional[str] = None,
-        chat_model: Optional[str] = None,
-        reason_model: Optional[str] = None,
-        embedding_model: Optional[str] = None,
-        agent_model: Optional[str] = None,
+        base_url: str | None = None,
+        chat_model: str | None = None,
+        reason_model: str | None = None,
+        embedding_model: str | None = None,
+        agent_model: str | None = None,
         timeout: float = 60.0,
     ):
         """初始化Ollama服务
@@ -45,7 +46,7 @@ class OllamaService:
         self.embedding_model = embedding_model or settings.OLLAMA_EMBEDDING_MODEL
         self.agent_model = agent_model or settings.OLLAMA_AGENT_MODEL
         self.timeout = timeout
-        self._client: Optional[httpx.AsyncClient] = None
+        self._client: httpx.AsyncClient | None = None
 
     async def _get_client(self) -> httpx.AsyncClient:
         """获取HTTP客户端（懒加载）
@@ -67,7 +68,7 @@ class OllamaService:
             await self._client.aclose()
             self._client = None
 
-    def _format_messages(self, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    def _format_messages(self, messages: list[dict[str, str]]) -> list[dict[str, str]]:
         """格式化消息列表为Ollama API格式
 
         Args:
@@ -86,8 +87,8 @@ class OllamaService:
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     async def chat(
         self,
-        messages: List[Dict[str, str]],
-        model: Optional[str] = None,
+        messages: list[dict[str, str]],
+        model: str | None = None,
         stream: bool = True,
     ) -> AsyncGenerator[str, None]:
         """与Ollama模型进行对话（流式响应）
@@ -159,9 +160,7 @@ class OllamaService:
             logger.error(f"Error in Ollama chat: {str(e)}")
             raise
 
-    async def chat_complete(
-        self, messages: List[Dict[str, str]], model: Optional[str] = None
-    ) -> str:
+    async def chat_complete(self, messages: list[dict[str, str]], model: str | None = None) -> str:
         """与Ollama模型进行对话（非流式，返回完整响应）
 
         Args:
@@ -177,9 +176,7 @@ class OllamaService:
         return full_response
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
-    async def generate_embedding(
-        self, text: str, model: Optional[str] = None
-    ) -> List[float]:
+    async def generate_embedding(self, text: str, model: str | None = None) -> list[float]:
         """生成文本的嵌入向量
 
         Args:
@@ -208,7 +205,10 @@ class OllamaService:
             data = response.json()
 
             if "embedding" in data:
-                return data["embedding"]
+                embedding = data["embedding"]
+                if isinstance(embedding, list):
+                    return [float(x) for x in embedding]
+                return list(embedding)
             else:
                 raise ValueError(f"Unexpected response format: {data}")
 

@@ -2,7 +2,8 @@
 
 提供与DeepSeek API的交互功能，支持流式对话、消息保存回调和语义缓存集成。
 """
-from typing import AsyncGenerator, Callable, Dict, List, Optional
+
+from collections.abc import AsyncGenerator, Callable
 
 from openai import AsyncOpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
@@ -22,9 +23,9 @@ class DeepSeekService:
 
     def __init__(
         self,
-        api_key: Optional[str] = None,
-        base_url: Optional[str] = None,
-        model: Optional[str] = None,
+        api_key: str | None = None,
+        base_url: str | None = None,
+        model: str | None = None,
         timeout: float = 60.0,
         enable_cache: bool = True,
     ):
@@ -51,7 +52,7 @@ class DeepSeekService:
         )
 
         # 初始化语义缓存（如果启用）
-        self.cache: Optional[RedisSemanticCache] = None
+        self.cache: RedisSemanticCache | None = None
         if self.enable_cache:
             self.cache = RedisSemanticCache()
 
@@ -60,7 +61,7 @@ class DeepSeekService:
         if self.cache:
             await self.cache.close()
 
-    def _format_messages(self, messages: List[Dict[str, str]]) -> List[Dict[str, str]]:
+    def _format_messages(self, messages: list[dict[str, str]]) -> list[dict[str, str]]:
         """格式化消息列表为OpenAI API格式
 
         Args:
@@ -76,7 +77,7 @@ class DeepSeekService:
             formatted.append({"role": role, "content": content})
         return formatted
 
-    def _get_last_user_message(self, messages: List[Dict[str, str]]) -> Optional[str]:
+    def _get_last_user_message(self, messages: list[dict[str, str]]) -> str | None:
         """获取最后一条用户消息
 
         Args:
@@ -93,9 +94,9 @@ class DeepSeekService:
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
     async def chat(
         self,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         stream: bool = True,
-        on_message: Optional[Callable[[str], None]] = None,
+        on_message: Callable[[str], None] | None = None,
         use_cache: bool = True,
         enable_thinking: bool = False,
         **kwargs,
@@ -213,8 +214,8 @@ class DeepSeekService:
 
     async def chat_complete(
         self,
-        messages: List[Dict[str, str]],
-        on_message: Optional[Callable[[str], None]] = None,
+        messages: list[dict[str, str]],
+        on_message: Callable[[str], None] | None = None,
         use_cache: bool = True,
         enable_thinking: bool = False,
         **kwargs,
@@ -233,16 +234,21 @@ class DeepSeekService:
         """
         full_response = ""
         async for chunk in self.chat(
-            messages, stream=False, on_message=on_message, use_cache=use_cache, enable_thinking=enable_thinking, **kwargs
+            messages,
+            stream=False,
+            on_message=on_message,
+            use_cache=use_cache,
+            enable_thinking=enable_thinking,
+            **kwargs,
         ):
             full_response += chunk
         return full_response
 
     async def reason(
         self,
-        messages: List[Dict[str, str]],
+        messages: list[dict[str, str]],
         stream: bool = True,
-        on_message: Optional[Callable[[str], None]] = None,
+        on_message: Callable[[str], None] | None = None,
         use_cache: bool = False,
         **kwargs,
     ) -> AsyncGenerator[str, None]:
@@ -266,7 +272,7 @@ class DeepSeekService:
         # 使用 reasoner 模型，并启用思考模式
         reasoner_model = settings.DEEPSEEK_REASONER_MODEL
         original_model = self.model
-        
+
         try:
             # 临时切换到 reasoner 模型
             self.model = reasoner_model
@@ -281,8 +287,8 @@ class DeepSeekService:
 
     async def reason_complete(
         self,
-        messages: List[Dict[str, str]],
-        on_message: Optional[Callable[[str], None]] = None,
+        messages: list[dict[str, str]],
+        on_message: Callable[[str], None] | None = None,
         use_cache: bool = False,
         **kwargs,
     ) -> str:

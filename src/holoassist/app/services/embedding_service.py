@@ -2,6 +2,7 @@
 
 提供统一的嵌入向量生成接口，支持多种后端（Ollama、sentence-transformers、SiliconFlow）。
 """
+
 import asyncio
 
 import numpy as np
